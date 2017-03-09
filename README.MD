@@ -17,4 +17,3 @@ just install golang 1.6
 ## Tests
 
 I need put test.
-sss
