@@ -1,4 +1,4 @@
-package models
+package User
 
 //User date of User
 type User struct {

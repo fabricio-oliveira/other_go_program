@@ -6,16 +6,13 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/fabricio-oliveira/simple-api/dao"
-	"github.com/fabricio-oliveira/simple-api/models"
-
 	"github.com/go-zoo/bone"
 	"github.com/jinzhu/gorm"
 )
 
 // User is a controller for user
-type User struct {
-	userDAO *dao.User
+type UserHandler struct {
+	userDAO *UserDAO
 }
 
 func initHeader(w http.ResponseWriter) {
@@ -24,17 +21,16 @@ func initHeader(w http.ResponseWriter) {
 
 //NewUser create a new user
 func NewUser(db *gorm.DB) *User {
-	return &User{userDAO: dao.NewUser(db)}
+	return &User{userDAO: NewUserDAO(db)}
 }
 
-
 //URL returnn URL to acess User
-func (u User) URL() string {
+func (u UserHandler) URL() string {
 	return "/user/:id"
 }
 
 // Get return one User
-func (u User) Get(w http.ResponseWriter, r *http.Request) {
+func (u UserHandler) Get(w http.ResponseWriter, r *http.Request) {
 	initHeader(w)
 
 	id, erro := strconv.Atoi(bone.GetValue(r, "id"))
@@ -57,7 +53,7 @@ func (u User) Get(w http.ResponseWriter, r *http.Request) {
 }
 
 //Post Create one User
-func (u User) Post(w http.ResponseWriter, r *http.Request) {
+func (u UserHandler) Post(w http.ResponseWriter, r *http.Request) {
 	initHeader(w)
 
 	id, erro := strconv.Atoi(bone.GetValue(r, "id"))
@@ -67,7 +63,7 @@ func (u User) Post(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user := &models.User{ID: id}
+	user := &User{ID: id}
 	if err := json.NewDecoder(r.Body).Decode(user); err != nil {
 		log.Println("Erro Parse dados: ", err)
 		w.WriteHeader(http.StatusBadRequest)
@@ -83,7 +79,7 @@ func (u User) Post(w http.ResponseWriter, r *http.Request) {
 }
 
 //Put update one User
-func (u User) Put(w http.ResponseWriter, r *http.Request) {
+func (u UserHandler) Put(w http.ResponseWriter, r *http.Request) {
 	initHeader(w)
 
 	id, erro := strconv.Atoi(bone.GetValue(r, "id"))
@@ -93,7 +89,7 @@ func (u User) Put(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user := &models.User{ID: id}
+	user := &User{ID: id}
 	if err := json.NewDecoder(r.Body).Decode(user); err != nil {
 		log.Println("Erro Parse dados: ", err)
 		w.WriteHeader(http.StatusBadRequest)
@@ -108,7 +104,7 @@ func (u User) Put(w http.ResponseWriter, r *http.Request) {
 }
 
 //Delete remove one user
-func (u User) Delete(w http.ResponseWriter, r *http.Request) {
+func (u UserHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	initHeader(w)
 
 	id, erro := strconv.Atoi(bone.GetValue(r, "id"))

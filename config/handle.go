@@ -5,11 +5,18 @@ import (
 	"log"
 	"net/http"
 
-	co "github.com/fabricio-oliveira/simple-api/controller"
-
 	"github.com/go-zoo/bone"
 	"github.com/jinzhu/gorm"
 )
+
+//Rest Interface with methods mandatory
+type Rest interface {
+	URL() string
+	Get(w http.ResponseWriter, r *http.Request)
+	Post(w http.ResponseWriter, r *http.Request)
+	Put(w http.ResponseWriter, r *http.Request)
+	Delete(w http.ResponseWriter, r *http.Request)
+}
 
 //InitHandle init handlels
 func InitHandle(db *gorm.DB) {
@@ -29,7 +36,6 @@ func InitHandle(db *gorm.DB) {
 
 	// start golang server
 	log.Fatal(http.ListenAndServe(porta, mux))
-
 }
 
 func registerController(mux *bone.Mux, c co.Rest) {
