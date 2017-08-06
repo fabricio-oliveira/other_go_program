@@ -1,9 +1,9 @@
-package conf
+package config
 
 import (
 	"errors"
 
-	"github.com/fabricio-oliveira/simple-api/models"
+	"github.com/fabricio-oliveira/other_go_program/user"
 
 	"github.com/jinzhu/gorm"
 	//drive database
@@ -17,7 +17,7 @@ func InitDB() (*gorm.DB, error) {
 		return nil, errors.New("failed to connect database")
 	}
 
-	db.AutoMigrate(&models.User{})
+	db.AutoMigrate(&user.User{})
 	db.DB().SetMaxOpenConns(5)
 	return db, nil
 }

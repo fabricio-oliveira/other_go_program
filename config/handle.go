@@ -1,4 +1,4 @@
-package conf
+package config
 
 import (
 	"fmt"
@@ -28,7 +28,7 @@ func InitHandle(db *gorm.DB) {
 
 	mux := bone.New()
 
-	user := co.NewUser(db)
+	user := user.NewUser(db)
 	registerController(mux, user)
 
 	fs := http.FileServer(http.Dir("./static"))
@@ -38,7 +38,7 @@ func InitHandle(db *gorm.DB) {
 	log.Fatal(http.ListenAndServe(porta, mux))
 }
 
-func registerController(mux *bone.Mux, c co.Rest) {
+func registerController(mux *bone.Mux, c Rest) {
 	mux.Get(c.URL(), http.HandlerFunc(c.Get))
 	mux.Post(c.URL(), http.HandlerFunc(c.Post))
 	mux.Put(c.URL(), http.HandlerFunc(c.Put))

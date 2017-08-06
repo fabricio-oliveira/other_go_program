@@ -1,4 +1,4 @@
-package controller
+package user
 
 import (
 	"encoding/json"
@@ -12,7 +12,7 @@ import (
 
 // User is a controller for user
 type UserHandler struct {
-	userDAO *UserDAO
+	user *userDAO
 }
 
 func initHeader(w http.ResponseWriter) {
@@ -20,8 +20,8 @@ func initHeader(w http.ResponseWriter) {
 }
 
 //NewUser create a new user
-func NewUser(db *gorm.DB) *User {
-	return &User{userDAO: NewUserDAO(db)}
+func NewUserHandler(db *gorm.DB) *UserHandler {
+	return &UserHandler{user: newUserDAO(db)}
 }
 
 //URL returnn URL to acess User
@@ -41,7 +41,7 @@ func (u UserHandler) Get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, erro := u.userDAO.Find(id)
+	user, erro := u.user.find(id)
 	if erro != nil {
 		log.Println("Erro: ", erro)
 		w.WriteHeader(http.StatusNotFound)
@@ -70,7 +70,7 @@ func (u UserHandler) Post(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if erro := u.userDAO.Insert(user); erro != nil {
+	if erro := u.user.insert(user); erro != nil {
 		log.Println("Erro registro existente: ", erro)
 		w.WriteHeader(http.StatusConflict)
 	}
@@ -96,7 +96,7 @@ func (u UserHandler) Put(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if erro := u.userDAO.Update(user); erro != nil {
+	if erro := u.user.update(user); erro != nil {
 		w.WriteHeader(http.StatusConflict)
 	}
 	//Body
@@ -114,7 +114,7 @@ func (u UserHandler) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if erro := u.userDAO.Delete(id); erro != nil {
+	if erro := u.user.delete(id); erro != nil {
 		log.Println("Erro ao excluir id: ", id, " ", erro)
 		w.WriteHeader(http.StatusNotFound)
 		return

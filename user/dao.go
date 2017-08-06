@@ -1,4 +1,4 @@
-package dao
+package user
 
 import (
 	"log"
@@ -6,18 +6,15 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-//User UserDAO
-type UserDAO struct {
+type userDAO struct {
 	db *gorm.DB
 }
 
-//NewUser create new use
-func NewUserDAO(db *gorm.DB) *UserDAO {
-	return &UserDAO{db: db}
+func newUserDAO(db *gorm.DB) *userDAO {
+	return &userDAO{db: db}
 }
 
-//Find return a user
-func (u UserDAO) Find(id int) (*User, error) {
+func (u userDAO) find(id int) (*User, error) {
 	user := &User{}
 	if erro := u.db.Where("id == ?", id).First(&user).Error; erro != nil {
 		return nil, erro
@@ -25,8 +22,7 @@ func (u UserDAO) Find(id int) (*User, error) {
 	return user, nil
 }
 
-//Insert create a new row in DB
-func (u UserDAO) Insert(user *User) error {
+func (u userDAO) insert(user *User) error {
 	tx := u.db.Begin()
 
 	if erro := tx.Create(user).Error; erro != nil {
@@ -38,8 +34,7 @@ func (u UserDAO) Insert(user *User) error {
 	return nil
 }
 
-//Update alter a existent record
-func (u UserDAO) Update(user *User) error {
+func (u userDAO) update(user *User) error {
 	tx := u.db.Begin()
 
 	if erro := tx.Save(user).Error; erro != nil {
@@ -53,7 +48,7 @@ func (u UserDAO) Update(user *User) error {
 }
 
 //Delete delete a row
-func (u UserDAO) Delete(id int) error {
+func (u userDAO) delete(id int) error {
 	tx := u.db.Begin()
 
 	user := User{ID: id}

@@ -1,4 +1,4 @@
-package User
+package user
 
 //User date of User
 type User struct {
