@@ -12,7 +12,7 @@ import (
 
 // User is a controller for user
 type UserHandler struct {
-	user *userDAO
+	user *userRepository
 }
 
 func initHeader(w http.ResponseWriter) {
@@ -21,7 +21,7 @@ func initHeader(w http.ResponseWriter) {
 
 //NewUser create a new user
 func NewUserHandler(db *gorm.DB) *UserHandler {
-	return &UserHandler{user: newUserDAO(db)}
+	return &UserHandler{user: newUserRepository(db)}
 }
 
 //URL returnn URL to acess User
