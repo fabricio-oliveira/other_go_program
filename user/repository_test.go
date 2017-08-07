@@ -3,19 +3,44 @@ package user
 import (
 	"testing"
 
-	sqlmock "gopkg.in/DATA-DOG/go-sqlmock.v1"
+	"github.com/stretchr/testify/assert"
 )
 
-func TestInsert(t *testing.T) {
-	db, mock, err := sqlmock.New()
-	if err != nil {
-		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+func TestInsertSucessful(t *testing.T) {
+	db, error := InitDB(":memory:")
+	if error != nil {
+		t.Errorf("Problema abrir conexão banco %+v", error)
+		return
 	}
-
 	defer db.Close()
 
-	mock.ExpectBegin()
-	mock.ExpectExec("INSERT INTO product_viewers").WithArgs(2, 3).WillReturnResult(sqlmock.NewResult(1, 1))
-	mock.ExpectCommit()
+	userRepository := newRepository(db)
+	user := &Model{Name: "Fab", Age: 4, Sex: 1}
+	if error = userRepository.insert(user); error != nil {
+		t.Errorf("Problema na persistencia dos dados %+v", error)
+		return
+	}
 
+	assert.Equal(t, error, nil)
+	assert.Equal(t, 1, user.ID)
+}
+
+func TestInsertIdExitent(t *testing.T) {
+	db, error := InitDB(":memory:")
+	if error != nil {
+		t.Errorf("Problema abrir conexão banco %+v", error)
+		return
+	}
+	defer db.Close()
+
+	userRepository := newRepository(db)
+	user := &Model{ID: 1, Name: "Fab", Age: 4, Sex: 1}
+	if error = userRepository.insert(user); error != nil {
+		t.Errorf("Problema abrir conexão banco %+v", error)
+		return
+	}
+
+	if error = userRepository.insert(user); error != nil {
+		assert.Error(t, error, "UNIQUE constraint failed: users.id")
+	}
 }

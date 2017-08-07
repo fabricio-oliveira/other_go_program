@@ -6,41 +6,41 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-type userRepository struct {
+type repository struct {
 	db *gorm.DB
 }
 
-func newUserRepository(db *gorm.DB) *userRepository {
-	return &userRepository{db: db}
+func newRepository(db *gorm.DB) *repository {
+	return &repository{db: db}
 }
 
-func (u userRepository) find(id int) (*User, error) {
-	user := &User{}
-	if erro := u.db.Where("id == ?", id).First(&user).Error; erro != nil {
-		return nil, erro
+func (u repository) find(id int) (*Model, error) {
+	user := &Model{}
+	if err := u.db.Where("id == ?", id).First(&user).Error; err != nil {
+		return nil, err
 	}
 	return user, nil
 }
 
-func (u userRepository) insert(user *User) error {
+func (u repository) insert(user *Model) error {
 	tx := u.db.Begin()
 
-	if erro := tx.Create(user).Error; erro != nil {
+	if err := tx.Create(user).Error; err != nil {
 		tx.Rollback()
-		return erro
+		return err
 	}
 
 	tx.Commit()
 	return nil
 }
 
-func (u userRepository) update(user *User) error {
+func (u repository) update(user *Model) error {
 	tx := u.db.Begin()
 
-	if erro := tx.Save(user).Error; erro != nil {
-		log.Println("Erro registro existente: ", erro)
+	if err := tx.Save(user).Error; err != nil {
+		log.Println("err existent record: ", err)
 		tx.Rollback()
-		return erro
+		return err
 	}
 
 	tx.Commit()
@@ -48,13 +48,13 @@ func (u userRepository) update(user *User) error {
 }
 
 //Delete delete a row
-func (u userRepository) delete(id int) error {
+func (u repository) delete(id int) error {
 	tx := u.db.Begin()
 
-	user := User{ID: id}
-	if erro := tx.Delete(user).Error; erro != nil {
+	user := Model{ID: id}
+	if err := tx.Delete(user).Error; err != nil {
 		tx.Rollback()
-		return erro
+		return err
 	}
 
 	tx.Commit()

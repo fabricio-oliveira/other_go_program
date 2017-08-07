@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/fabricio-oliveira/other_go_program/user"
 	"github.com/go-zoo/bone"
 	"github.com/jinzhu/gorm"
 )
@@ -22,25 +23,19 @@ type Rest interface {
 func InitHandle(db *gorm.DB) {
 
 	porta := ":8081"
-	portaStatic := ":8080"
 	fmt.Println("WebServer go iniciado na porta ", porta)
-	fmt.Println("WebServer static iniciado na porta ", portaStatic)
 
 	mux := bone.New()
-
-	user := user.NewUser(db)
+	user := user.NewHandler(db)
 	registerController(mux, user)
-
-	fs := http.FileServer(http.Dir("./static"))
-	http.Handle("/", http.StripPrefix("/", fs))
 
 	// start golang server
 	log.Fatal(http.ListenAndServe(porta, mux))
 }
 
 func registerController(mux *bone.Mux, c Rest) {
-	mux.Get(c.URL(), http.HandlerFunc(c.Get))
+	mux.Get(c.URL()+":id", http.HandlerFunc(c.Get))
 	mux.Post(c.URL(), http.HandlerFunc(c.Post))
-	mux.Put(c.URL(), http.HandlerFunc(c.Put))
-	mux.Delete(c.URL(), http.HandlerFunc(c.Delete))
+	mux.Put(c.URL()+"/:id", http.HandlerFunc(c.Put))
+	mux.Delete(c.URL()+"/:id", http.HandlerFunc(c.Delete))
 }

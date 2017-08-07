@@ -10,27 +10,36 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-// User is a controller for user
-type UserHandler struct {
-	user *userRepository
+//Handler is a controller for user
+type Handler struct {
+	user *repository
+}
+
+//NewHandler create a new user
+func NewHandler(db *gorm.DB) *Handler {
+	return &Handler{user: newRepository(db)}
 }
 
 func initHeader(w http.ResponseWriter) {
 	w.Header().Set("Content-Type", "application/json")
 }
 
-//NewUser create a new user
-func NewUserHandler(db *gorm.DB) *UserHandler {
-	return &UserHandler{user: newUserRepository(db)}
+func valid(r *http.Request) bool {
+	for _, key := range [3]string{"Name", "Age", "Sex"} {
+		if val := bone.GetValue(r, key); val == "" {
+			return false
+		}
+	}
+	return true
 }
 
 //URL returnn URL to acess User
-func (u UserHandler) URL() string {
-	return "/user/:id"
+func (u Handler) URL() string {
+	return "/user"
 }
 
 // Get return one User
-func (u UserHandler) Get(w http.ResponseWriter, r *http.Request) {
+func (u Handler) Get(w http.ResponseWriter, r *http.Request) {
 	initHeader(w)
 
 	id, erro := strconv.Atoi(bone.GetValue(r, "id"))
@@ -49,21 +58,24 @@ func (u UserHandler) Get(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//Body
-	json.NewEncoder(w).Encode(user)
+	if err := json.NewEncoder(w).Encode(user); err != nil {
+		log.Println("Erro Parse dados: ", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 }
 
 //Post Create one User
-func (u UserHandler) Post(w http.ResponseWriter, r *http.Request) {
+func (u Handler) Post(w http.ResponseWriter, r *http.Request) {
 	initHeader(w)
 
-	id, erro := strconv.Atoi(bone.GetValue(r, "id"))
-	if erro != nil {
-		log.Println("Erro id inválido")
+	if valid(r) {
+		log.Println("Erro parameter invalid")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	user := &User{ID: id}
+	user := &Model{}
 	if err := json.NewDecoder(r.Body).Decode(user); err != nil {
 		log.Println("Erro Parse dados: ", err)
 		w.WriteHeader(http.StatusBadRequest)
@@ -76,10 +88,15 @@ func (u UserHandler) Post(w http.ResponseWriter, r *http.Request) {
 	}
 	//Body
 	w.WriteHeader(http.StatusAccepted)
+	if err := json.NewEncoder(w).Encode(map[string]int{"id": user.ID}); err != nil {
+		log.Println("Erro Parse dados: ", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 }
 
 //Put update one User
-func (u UserHandler) Put(w http.ResponseWriter, r *http.Request) {
+func (u Handler) Put(w http.ResponseWriter, r *http.Request) {
 	initHeader(w)
 
 	id, erro := strconv.Atoi(bone.GetValue(r, "id"))
@@ -89,7 +106,7 @@ func (u UserHandler) Put(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user := &User{ID: id}
+	user := &Model{ID: id}
 	if err := json.NewDecoder(r.Body).Decode(user); err != nil {
 		log.Println("Erro Parse dados: ", err)
 		w.WriteHeader(http.StatusBadRequest)
@@ -104,7 +121,7 @@ func (u UserHandler) Put(w http.ResponseWriter, r *http.Request) {
 }
 
 //Delete remove one user
-func (u UserHandler) Delete(w http.ResponseWriter, r *http.Request) {
+func (u Handler) Delete(w http.ResponseWriter, r *http.Request) {
 	initHeader(w)
 
 	id, erro := strconv.Atoi(bone.GetValue(r, "id"))

@@ -17,7 +17,7 @@ func InitDB() (*gorm.DB, error) {
 		return nil, errors.New("failed to connect database")
 	}
 
-	db.AutoMigrate(&user.User{})
+	db.AutoMigrate(&user.Model{})
 	db.DB().SetMaxOpenConns(5)
 	return db, nil
 }
