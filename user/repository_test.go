@@ -6,6 +6,19 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestFindNotFound(t *testing.T) {
+	db, error := InitDB(":memory:")
+	if error != nil {
+		t.Errorf("Problema abrir conexão banco %+v", error)
+		return
+	}
+	defer db.Close()
+
+	userRepository := newRepository(db)
+	_, err := userRepository.find(1)
+	assert.Equal(t, err.Error(), "record not found")
+}
+
 func TestInsertSucessful(t *testing.T) {
 	db, error := InitDB(":memory:")
 	if error != nil {
